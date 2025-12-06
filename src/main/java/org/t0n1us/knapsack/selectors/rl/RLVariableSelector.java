@@ -140,10 +140,10 @@ public class RLVariableSelector implements VariableSelector<IntVar> {
             }
         }
 
-        if (available.isEmpty())
+        if (available.isEmpty())  // Plus rien de disponible
             return null;
 
-        if (this.random.nextFloat() < this.params.epsilon) {
+        if (this.random.nextDouble() < this.params.epsilon) {
             return explore(active, excluded, available);
         } else {
             return exploit(active, excluded, available);
@@ -151,14 +151,19 @@ public class RLVariableSelector implements VariableSelector<IntVar> {
     }
 
     public void updateWeights(int R) {
-        this.b = this.b + this.params.alpha * (R - this.b);
+        this.b = this.b + this.params.alpha * (R - this.b);  // Maj du baseline
 
         for (double[] features : this.steps) {
             for (int i = 0; i < features.length; i++) {
-                this.params.weights[i] += this.params.learning_rate * (R - this.b) * features[i];
+                this.params.weights[i] += this.params.learning_rate * (R - this.b) * features[i];  // Maj des poids
             }
         }
 
         this.steps.clear();
     }
+
+    public void clearSteps() {
+        this.steps.clear();
+    }
+
 }

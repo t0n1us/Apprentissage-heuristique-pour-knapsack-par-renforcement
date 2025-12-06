@@ -10,29 +10,33 @@ import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.t0n1us.knapsack.selectors.HeuristicVariableSelector;
 import org.t0n1us.knapsack.selectors.rl.RLVariableSelector;
-import org.t0n1us.knapsack.util.KnapsackInstance;
-import org.t0n1us.knapsack.util.KnapsackModel;
-import org.t0n1us.knapsack.util.Result;
+import org.t0n1us.knapsack.util.*;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 
 public class KnapsackMain {
 
     public static void main(String[] args) {
         try {
-            Result result_test = solve("Default", null, KnapsackInstance.load_from_json("instances/instance_facile_test.json"), 5000);
-            System.out.println(result_test);
+            double[] weights = RLTrainWrapper.train(5, 0.001, 0.05, 0.95, 0.30, 0.05, 1000);
+            System.out.println(Arrays.toString(weights));
 
-            Result result_heuristic = solve("Heuristic", HeuristicVariableSelector.class, KnapsackInstance.load_from_json("instances/instance_facile_test.json"), 5000);
-            System.out.println(result_heuristic);
 
-            Result result_rl = solve("RL", RLVariableSelector.class, KnapsackInstance.load_from_json("instances/instance_facile_test.json"), 5000);
-            System.out.println(result_rl);
+//            Result result_test = solve("Default", null, KnapsackInstance.load_from_json("instance_facile_test.json"), 5000);
+//            System.out.println(result_test);
+//
+//            Result result_heuristic = solve("Heuristic", HeuristicVariableSelector.class, KnapsackInstance.load_from_json("instances/instance_facile_test.json"), 5000);
+//            System.out.println(result_heuristic);
+
+//            Result result_rl = solve("RL", RLVariableSelector.class, KnapsackInstance.load_from_json("instances/instance_facile_test.json"), 5000);
+//            System.out.println(result_rl);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
+    // TODO va falloir gerer le RLSelector
     public static Result solve(String selectorName, Class<? extends VariableSelector<IntVar>> variableSelectorClass, KnapsackInstance instance, long ms_timelimit) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         Model model = KnapsackModel.buildKnapsackModel(instance);
         Solver solver = model.getSolver();

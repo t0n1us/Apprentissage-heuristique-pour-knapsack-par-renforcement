@@ -3,31 +3,32 @@ package org.t0n1us.knapsack.selectors.rl.features;
 public class SimpleExtractor extends FeatureExtractor {
 
     public SimpleExtractor() {
-        super(14);
+        super(11);
     }
 
     @Override
     public double[] getFeatures(int value, int weight, State state) {
         double[] features = new double[this.n_features];
 
+        double log1p_value = Math.log1p(value);
+        double log1p_weight = Math.log1p(weight);
+        double log1p_capacity = Math.log1p(state.remainingCapacity());
+
         features[0] = 1;  // Biais
-        features[1] = value;
-        features[2] = weight;
-        features[3] = (double) value / weight;  // Même chose que l'heuristique
+        features[1] = log1p_value;
+        features[2] = log1p_weight;
 
-        features[4] = Math.log1p(value);  // log1p des valeur pour les valeurs très grandes
-        features[5] = Math.log1p(weight);  // log1p des poids pour les poids très grands
+        features[3] = log1p_value - log1p_weight;  // Même chose que l'heuristique mais log
+        features[4] = log1p_value - log1p_capacity;
+        features[5] = log1p_weight - log1p_capacity;
 
-        features[6] = state.remainingCapacity();  // Capacité restante
-        features[7] = (double) value / state.remainingCapacity();
-        features[8] = (double) weight / state.remainingCapacity();
-        features[9] = (double) state.remainingCapacity() / weight;
+        features[6] = Math.log1p(state.remainingCapacity() - weight);
 
-        features[10] = state.depth();  // Profondeur de l'arbre de recherche
-        features[11] = (double) state.depth() / state.nbVars();  // Profondeur normalisée sur le nombre de variables totales
+        features[7] = (weight < state.remainingCapacity() * 0.1) ? 1.0 : 0.0;
+        features[8] = (weight > state.remainingCapacity() * 0.5) ? 1.0 : 0.0;
 
-        features[12] = state.remainingAvailable();  // Nombre d'objets restants
-        features[13] = state.remainingCapacity() - weight;  //  Capacité restante après le poid
+        features[9] = ((double) state.depth() / state.nbVars()) * (log1p_value - log1p_weight);
+        features[10] = ((double) state.remainingAvailable() / state.nbVars()) * (log1p_value - log1p_weight);
 
         return features;
     }
