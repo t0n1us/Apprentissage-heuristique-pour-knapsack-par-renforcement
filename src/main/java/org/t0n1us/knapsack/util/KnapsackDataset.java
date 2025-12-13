@@ -42,6 +42,14 @@ public class KnapsackDataset {
     }
 
     public static List<KnapsackInstance> getTestDataset() throws IOException {
+//        List<KnapsackInstance> x = new ArrayList<>();
+//        x.add(getDataset("test").getFirst());
         return getDataset("test");
+    }
+
+    public static List<KnapsackInstance> getTrickyDataset() throws IOException {
+//        List<KnapsackInstance> x = new ArrayList<>();
+//        x.add(getDataset("test_tricky").getFirst());
+        return getDataset("test_tricky");
     }
 }

@@ -99,7 +99,6 @@ public class RLVariableSelector implements VariableSelector<IntVar> {
         double best_score = Double.NEGATIVE_INFINITY;
         double[] best_features = null;
 
-
         for (int idx : available) {
             int value = this.values[idx];
             int weight = this.weights[idx];
@@ -150,15 +149,19 @@ public class RLVariableSelector implements VariableSelector<IntVar> {
         }
     }
 
-    public void updateWeights(int R) {
-        this.b = this.b + this.params.alpha * (R - this.b);  // Maj du baseline
+    public void updateWeights(double R) {
+        for (double[] features : this.steps.reversed()) {
 
-        for (double[] features : this.steps) {
+            if (this.random.nextDouble() < this.params.dropout)
+                continue;
+
             for (int i = 0; i < features.length; i++) {
-                this.params.weights[i] += this.params.learning_rate * (R - this.b) * features[i];  // Maj des poids
+                this.params.weights[i] += this.params.learning_rate * ((R - this.b) * features[i]
+                        - this.params.weight_decay * this.params.weights[i]);  // Maj des poids avec régularisation
             }
         }
 
+        this.b = this.b + this.params.baseline_memorisation * (R - this.b);  // Maj du baseline
         this.steps.clear();
     }
 

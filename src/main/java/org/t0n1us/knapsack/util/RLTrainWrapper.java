@@ -1,6 +1,7 @@
 package org.t0n1us.knapsack.util;
 
 import org.chocosolver.solver.Model;
+import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.search.strategy.selectors.values.IntValueSelector;
@@ -18,13 +19,15 @@ import java.util.List;
 
 public class RLTrainWrapper {
 
-    public static double[] train(int epochs, double learning_rate, double alpha, double lambda, double epsilon, double epsilon_min, int ms_timelimit) throws IOException {
+    public static TrainResult train(int epochs, RLParams params, long ms_timelimit, FeatureExtractor extractor) throws IOException {
         List<KnapsackInstance> trainDataset = KnapsackDataset.getTrainDataset(true);
 
-        FeatureExtractor extractor = new SimpleExtractor();
-        RLParams params = new RLParams(learning_rate, alpha, lambda, epsilon, epsilon_min, extractor.getFeaturesSize());
+        double last_best_avg = -1.0;
 
         for (int epoch = 0; epoch < epochs; epoch++) {
+
+            double best_avg = 0.0;
+
             for (KnapsackInstance instance : trainDataset) {
                 Model model = KnapsackModel.buildKnapsackModel(instance);
                 Solver solver = model.getSolver();
@@ -44,7 +47,12 @@ public class RLTrainWrapper {
                 solver.plugMonitor(rl_monitor);
                 solver.limitTime(ms_timelimit);
 
-                solver.solve();
+                Solution solution = solver.findOptimalSolution(totalValue, true);
+
+                if (solution == null)
+                    best_avg += 0;
+                else
+                    best_avg += solution.getIntVal(totalValue);
 
                 rl_varSelector.clearSteps();
             }
@@ -52,10 +60,15 @@ public class RLTrainWrapper {
             params.decayEpsilon();  // On diminue epsilon
             Collections.shuffle(trainDataset);  // On mélange le dataset
 
-            System.out.println("Epoch " + Integer.toString(epoch + 1) + " completed!");
+            best_avg /= trainDataset.size();
+            last_best_avg = best_avg;
+
+            System.out.println("Epoch " + (epoch + 1) + " completed!");
+            System.out.println("Average best value was :: "  + best_avg);
+            System.out.println();
         }
 
-        return params.weights;  // On retourne les poids entrainnés
+        return new TrainResult(params.weights, last_best_avg);  // On retourne les poids entrainnés
     }
 
 }

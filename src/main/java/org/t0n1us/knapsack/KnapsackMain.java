@@ -1,73 +1,99 @@
 package org.t0n1us.knapsack;
 
-import org.chocosolver.solver.Model;
-import org.chocosolver.solver.Solution;
-import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.search.strategy.Search;
-import org.chocosolver.solver.search.strategy.selectors.values.IntValueSelector;
-import org.chocosolver.solver.search.strategy.selectors.variables.VariableSelector;
-import org.chocosolver.solver.variables.BoolVar;
-import org.chocosolver.solver.variables.IntVar;
-import org.t0n1us.knapsack.selectors.HeuristicVariableSelector;
-import org.t0n1us.knapsack.selectors.rl.RLVariableSelector;
+import org.chocosolver.solver.constraints.nary.nvalue.amnv.rules.R;
+import org.t0n1us.knapsack.selectors.rl.RLParams;
+import org.t0n1us.knapsack.selectors.rl.features.SimpleExtractor;
 import org.t0n1us.knapsack.util.*;
 
-import java.lang.reflect.InvocationTargetException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class KnapsackMain {
 
     public static void main(String[] args) {
         try {
-            double[] weights = RLTrainWrapper.train(5, 0.001, 0.05, 0.95, 0.30, 0.05, 1000);
-            System.out.println(Arrays.toString(weights));
+             gridTrainWeights();  // Boucle d'entrainnement en grille
 
+            List<KnapsackInstance> dataset = KnapsackDataset.getTestDataset();
+            double[] weights = DoubleArrayIO.load("src/main/resources/saved_weights/e5_lr0.0020_a0.050_l0.00_eps0.95_epsmin0.10_wd0.00050_do0.00_nf200ms.weights");
 
-//            Result result_test = solve("Default", null, KnapsackInstance.load_from_json("instance_facile_test.json"), 5000);
-//            System.out.println(result_test);
-//
-//            Result result_heuristic = solve("Heuristic", HeuristicVariableSelector.class, KnapsackInstance.load_from_json("instances/instance_facile_test.json"), 5000);
-//            System.out.println(result_heuristic);
+            for (int ms_timelimist = 150; ms_timelimist <= 250; ms_timelimist += 10){
+                List<Result> results_rl = Inference.solveWithRL(weights, new SimpleExtractor(), ms_timelimist, dataset);
+                List<Result> results_heuristic = Inference.solveWithHeuristic(ms_timelimist, dataset);
+                List<Result> results_default = Inference.solveDefault(ms_timelimist, dataset);
 
-//            Result result_rl = solve("RL", RLVariableSelector.class, KnapsackInstance.load_from_json("instances/instance_facile_test.json"), 5000);
-//            System.out.println(result_rl);
+                Path folder = Paths.get("src/main/resources/résultats/" + ms_timelimist);
+
+                Files.createDirectory(folder);
+
+                List<Result> allResults = new ArrayList<>();
+                allResults.addAll(results_rl);
+                allResults.addAll(results_heuristic);
+                allResults.addAll(results_default);
+
+                for (Result r : allResults)
+                    r.toJsonFile(folder.resolve(r.name()));
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    // TODO va falloir gerer le RLSelector
-    public static Result solve(String selectorName, Class<? extends VariableSelector<IntVar>> variableSelectorClass, KnapsackInstance instance, long ms_timelimit) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        Model model = KnapsackModel.buildKnapsackModel(instance);
-        Solver solver = model.getSolver();
 
-        solver.limitTime(ms_timelimit);
+    public static void gridTrainWeights() throws IOException {
+        int[] grid_epochs = {1, 3, 5};
+        long[] grid_ms_timelimit = {100, 200};
 
-        BoolVar[] x = model.retrieveBoolVars();
-        IntVar totalValue = KnapsackModel.getTotalValue(model);
+        SimpleExtractor extractor = new SimpleExtractor();
 
-        if (variableSelectorClass != null) {
-            IntValueSelector valSelector = var -> 1;
+        RLParams[] grid_params = {
+                new RLParams(1e-3, 0.05, 1e-3, 1, 0.05, 5e-4, 0.1, extractor.getFeaturesSize()),
+                new RLParams(8e-4, 0.05, 8e-4, 1.0, 0.03, 3e-4, 0.05, extractor.getFeaturesSize()),
+                new RLParams(1e-3, 0.05, 1e-3, 1.0, 0.05, 5e-4, 0.10, extractor.getFeaturesSize()),
+                new RLParams(1.2e-3, 0.05, 1.5e-3, 1.0, 0.07, 8e-4, 0.15, extractor.getFeaturesSize()),
+                new RLParams(5e-4, 0.05, 5e-4, 1.0, 0.02, 2e-4, 0.00, extractor.getFeaturesSize()),
+                new RLParams(3e-4, 0.05, 2e-4, 1.0, 0.01, 1e-4, 0.00, extractor.getFeaturesSize()),
+                new RLParams(7e-4, 0.05, 5e-4, 1.0, 0.03, 3e-4, 0.05, extractor.getFeaturesSize()),
+                new RLParams(1.5e-3, 0.05, 2e-3, 1.0, 0.08, 1e-3, 0.20, extractor.getFeaturesSize()),
+                new RLParams(2e-3, 0.05, 3e-3, 1.0, 0.10, 5e-4, 0.00, extractor.getFeaturesSize()),
+                new RLParams(6e-4, 0.05, 1e-4, 1.0, 0.02, 8e-4, 0.30, extractor.getFeaturesSize())
+        };
 
-            VariableSelector<IntVar> varSelector = variableSelectorClass.getConstructor(IntVar[].class, int[].class, int[].class).newInstance(x, instance.weights(), instance.values());
+        double best_avg = 0.0;
+        double[] best_weights = null;
+        String best_model_name = "";
+        String folder_path = "src/main/resources/saved_weights/";
 
-            solver.setSearch(Search.intVarSearch(varSelector, valSelector, x));
+        for (int epochs : grid_epochs) {
+            for (long ms_timelimit : grid_ms_timelimit) {
+                for (RLParams params : grid_params) {
+                    TrainResult train_result = RLTrainWrapper.train(epochs, params, ms_timelimit, extractor);
+
+                    if (train_result.lastBestAvg() > best_avg) {
+                        best_avg = train_result.lastBestAvg();
+                        best_weights = train_result.weights();
+                        best_model_name = String.format(
+                                "e%d_lr%.4f_a%.3f_l%.2f_eps%.2f_epsmin%.2f_wd%.5f_do%.2f_nf%dms.weights",
+                                epochs,
+                                params.learning_rate,
+                                params.baseline_memorisation,
+                                params.epsilon_decay,
+                                params.epsilon,
+                                params.epsilon_min,
+                                params.weight_decay,
+                                params.dropout,
+                                ms_timelimit
+                        );
+                    }
+                }
+            }
         }
 
-        long t0 = System.currentTimeMillis();
-        Solution solution = solver.findOptimalSolution(totalValue, true);
-        long t1 = System.currentTimeMillis();
-
-        int[] xSol = new int[x.length];
-        for (int i = 0; i < x.length; i++) {
-            xSol[i] = solution.getIntVal(x[i]);
-        }
-
-        int bestValue = solution.getIntVal(totalValue);
-        long nodes = solver.getMeasures().getNodeCount();
-        long time = t1 - t0;
-
-        return new Result(selectorName, bestValue, xSol, nodes, time);
+        DoubleArrayIO.save(best_weights, folder_path + best_model_name);
     }
-
 }
