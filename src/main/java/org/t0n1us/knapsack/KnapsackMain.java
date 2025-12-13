@@ -50,16 +50,16 @@ public class KnapsackMain {
         SimpleExtractor extractor = new SimpleExtractor();
 
         RLParams[] grid_params = {
-                new RLParams(1e-3, 0.05, 1e-3, 1, 0.05, 5e-4, 0.1, extractor.getFeaturesSize()),
-                new RLParams(8e-4, 0.05, 8e-4, 1.0, 0.03, 3e-4, 0.05, extractor.getFeaturesSize()),
-                new RLParams(1e-3, 0.05, 1e-3, 1.0, 0.05, 5e-4, 0.10, extractor.getFeaturesSize()),
-                new RLParams(1.2e-3, 0.05, 1.5e-3, 1.0, 0.07, 8e-4, 0.15, extractor.getFeaturesSize()),
-                new RLParams(5e-4, 0.05, 5e-4, 1.0, 0.02, 2e-4, 0.00, extractor.getFeaturesSize()),
-                new RLParams(3e-4, 0.05, 2e-4, 1.0, 0.01, 1e-4, 0.00, extractor.getFeaturesSize()),
-                new RLParams(7e-4, 0.05, 5e-4, 1.0, 0.03, 3e-4, 0.05, extractor.getFeaturesSize()),
-                new RLParams(1.5e-3, 0.05, 2e-3, 1.0, 0.08, 1e-3, 0.20, extractor.getFeaturesSize()),
-                new RLParams(2e-3, 0.05, 3e-3, 1.0, 0.10, 5e-4, 0.00, extractor.getFeaturesSize()),
-                new RLParams(6e-4, 0.05, 1e-4, 1.0, 0.02, 8e-4, 0.30, extractor.getFeaturesSize())
+                new RLParams(1e-3, 0.05, 1e-3, 0.5, 0.05, 5e-4, 0.1, extractor.getFeaturesSize()),
+                new RLParams(8e-4, 0.05, 8e-4, 0.5, 0.03, 3e-4, 0.05, extractor.getFeaturesSize()),
+                new RLParams(1e-3, 0.05, 1e-3, 0.5, 0.05, 5e-4, 0.10, extractor.getFeaturesSize()),
+                new RLParams(1.2e-3, 0.05, 1.5e-3, 0.5, 0.07, 8e-4, 0.15, extractor.getFeaturesSize()),
+                new RLParams(5e-4, 0.05, 5e-4, 0.5, 0.02, 2e-4, 0.00, extractor.getFeaturesSize()),
+                new RLParams(3e-4, 0.05, 2e-4, 0.5, 0.01, 1e-4, 0.00, extractor.getFeaturesSize()),
+                new RLParams(7e-4, 0.05, 5e-4, 0.5, 0.03, 3e-4, 0.05, extractor.getFeaturesSize()),
+                new RLParams(1.5e-3, 0.05, 2e-3, 0.5, 0.08, 1e-3, 0.20, extractor.getFeaturesSize()),
+                new RLParams(2e-3, 0.05, 3e-3, 0.5, 0.10, 5e-4, 0.00, extractor.getFeaturesSize()),
+                new RLParams(6e-4, 0.05, 1e-4, 0.5, 0.02, 8e-4, 0.30, extractor.getFeaturesSize())
         };
 
         double best_avg = 0.0;
