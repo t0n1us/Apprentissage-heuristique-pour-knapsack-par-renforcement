@@ -1,6 +1,5 @@
 package org.t0n1us.knapsack;
 
-import org.chocosolver.solver.constraints.nary.nvalue.amnv.rules.R;
 import org.t0n1us.knapsack.selectors.rl.RLParams;
 import org.t0n1us.knapsack.selectors.rl.features.SimpleExtractor;
 import org.t0n1us.knapsack.util.*;
@@ -10,7 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class KnapsackMain {

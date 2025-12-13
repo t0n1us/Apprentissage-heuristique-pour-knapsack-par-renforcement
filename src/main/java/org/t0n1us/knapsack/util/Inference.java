@@ -5,7 +5,6 @@ import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.search.strategy.selectors.values.IntValueSelector;
-import org.chocosolver.solver.search.strategy.selectors.variables.VariableSelector;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.t0n1us.knapsack.selectors.HeuristicVariableSelector;
@@ -14,7 +13,6 @@ import org.t0n1us.knapsack.selectors.rl.RLVariableSelector;
 import org.t0n1us.knapsack.selectors.rl.features.FeatureExtractor;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 

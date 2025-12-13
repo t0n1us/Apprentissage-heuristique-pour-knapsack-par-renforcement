@@ -11,7 +11,6 @@ import org.t0n1us.knapsack.selectors.rl.RLParams;
 import org.t0n1us.knapsack.selectors.rl.RLSolutionMonitor;
 import org.t0n1us.knapsack.selectors.rl.RLVariableSelector;
 import org.t0n1us.knapsack.selectors.rl.features.FeatureExtractor;
-import org.t0n1us.knapsack.selectors.rl.features.SimpleExtractor;
 
 import java.io.IOException;
 import java.util.Collections;
