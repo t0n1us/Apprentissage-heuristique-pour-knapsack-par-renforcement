@@ -130,7 +130,10 @@ public class Inference {
 
             int[] xSol = new int[x.length];
             for (int i = 0; i < x.length; i++) {
-                xSol[i] = solution.getIntVal(x[i]);
+                if (solution == null)
+                    xSol[i] = 0;
+                else
+                    xSol[i] = solution.getIntVal(x[i]);
             }
 
             int bestValue = solution.getIntVal(totalValue);

@@ -53,10 +53,10 @@ public class RLTrainWrapper {
                 else
                     best_avg += solution.getIntVal(totalValue);
 
+                params.decayEpsilon();  // On diminue epsilon
                 rl_varSelector.clearSteps();
             }
 
-            params.decayEpsilon();  // On diminue epsilon
             Collections.shuffle(trainDataset);  // On mélange le dataset
 
             best_avg /= trainDataset.size();
