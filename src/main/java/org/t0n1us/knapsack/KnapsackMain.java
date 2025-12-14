@@ -18,7 +18,10 @@ public class KnapsackMain {
              gridTrainWeights();  // Boucle d'entrainnement en grille
 
             List<KnapsackInstance> dataset = KnapsackDataset.getTestDataset();
-            double[] weights = DoubleArrayIO.load("src/main/resources/saved_weights/e3_lr0.0008_a0.050_l0.00_eps0.21_epsmin0.03_wd0.00030_do0.05_nf200ms.weights");
+            double[] weights = DoubleArrayIO.load("src/main/resources/saved_weights/e5_lr0.0012_a0.050_l0.00_eps0.22_epsmin0.07_wd0.00080_do0.15_nf200ms.weights");
+
+            for (double x : weights)
+                System.out.println(x);
 
             long ms_timelimit = 200;
 
@@ -44,22 +47,22 @@ public class KnapsackMain {
 
 
     public static void gridTrainWeights() throws IOException {
-        int[] grid_epochs = {1, 2, 3};
-        long[] grid_ms_timelimit = {200};
+        int[] grid_epochs = {3, 5};
+        long[] grid_ms_timelimit = {100, 200};
 
         SimpleExtractor extractor = new SimpleExtractor();
 
         RLParams[] grid_params = {
-                new RLParams(1e-3, 0.05, 1e-3, 0.6, 0.05, 5e-4, 0.1, extractor.getFeaturesSize()),
-                new RLParams(8e-4, 0.05, 8e-4, 0.6, 0.03, 3e-4, 0.05, extractor.getFeaturesSize()),
-                new RLParams(1e-3, 0.05, 1e-3, 0.6, 0.05, 5e-4, 0.10, extractor.getFeaturesSize()),
-                new RLParams(1.2e-3, 0.05, 1.5e-3, 0.6, 0.07, 8e-4, 0.15, extractor.getFeaturesSize()),
-                new RLParams(5e-4, 0.05, 5e-4, 0.6, 0.02, 2e-4, 0.00, extractor.getFeaturesSize()),
-                new RLParams(3e-4, 0.05, 2e-4, 0.6, 0.01, 1e-4, 0.00, extractor.getFeaturesSize()),
-                new RLParams(7e-4, 0.05, 5e-4, 0.6, 0.03, 3e-4, 0.05, extractor.getFeaturesSize()),
-                new RLParams(1.5e-3, 0.05, 2e-3, 0.6, 0.08, 1e-3, 0.20, extractor.getFeaturesSize()),
-                new RLParams(2e-3, 0.05, 3e-3, 0.6, 0.10, 5e-4, 0.00, extractor.getFeaturesSize()),
-                new RLParams(6e-4, 0.05, 1e-4, 0.6, 0.02, 8e-4, 0.30, extractor.getFeaturesSize())
+                new RLParams(1e-3, 0.05, 1e-3, 1, 0.05, 5e-4, 0.1, extractor.getFeaturesSize()),
+                new RLParams(8e-4, 0.05, 8e-4, 1, 0.03, 3e-4, 0.05, extractor.getFeaturesSize()),
+                new RLParams(1e-3, 0.05, 1e-3, 1, 0.05, 5e-4, 0.10, extractor.getFeaturesSize()),
+                new RLParams(1.2e-3, 0.05, 1.5e-3, 1, 0.07, 8e-4, 0.15, extractor.getFeaturesSize()),
+                new RLParams(5e-4, 0.05, 5e-4, 1, 0.02, 2e-4, 0.00, extractor.getFeaturesSize()),
+                new RLParams(3e-4, 0.05, 2e-4, 1, 0.01, 1e-4, 0.00, extractor.getFeaturesSize()),
+                new RLParams(7e-4, 0.05, 5e-4, 1, 0.03, 3e-4, 0.05, extractor.getFeaturesSize()),
+                new RLParams(1.5e-3, 0.05, 2e-3, 1, 0.08, 1e-3, 0.20, extractor.getFeaturesSize()),
+                new RLParams(2e-3, 0.05, 3e-3, 1, 0.10, 5e-4, 0.00, extractor.getFeaturesSize()),
+                new RLParams(6e-4, 0.05, 1e-4, 1, 0.02, 8e-4, 0.30, extractor.getFeaturesSize())
         };
 
         double best_avg = 0.0;
